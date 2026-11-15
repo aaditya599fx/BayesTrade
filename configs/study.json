@@ -1,0 +1,15 @@
+{
+  "horizon": 8,
+  "target_lots": 6,
+  "grid_points": 101,
+  "train_seed": 41201,
+  "train_episodes": 150,
+  "test_seeds": [78121, 78122, 78123],
+  "episodes_per_seed": 200,
+  "bootstrap_seed": 38099,
+  "bootstrap_draws": 4000,
+  "pov_candidates": [0.08, 0.12, 0.18, 0.25],
+  "reactive_candidates": [0.55, 0.75, 1.0, 1.25],
+  "scenarios": ["stable", "switching", "weak_signal", "no_information",
+                "transition_shift", "fill_shift", "rare_stress", "unknown_fill"]
+}
