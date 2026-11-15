@@ -1,16 +1,31 @@
 # BayesTrade
 **Bayesian adaptive execution under latent market regimes**
 
-BayesTrade contains a reusable tabular decision library, a seeded event simulator
-for buying a parent order, and two controlled tests of whether Bayesian
-information changes execution outcomes. The experience is synthetic and uses
-no API keys or market data.
+**[Read the research paper (PDF)](reports/research-paper.pdf)** · [Study protocol](reports/protocol.md) · [Tutorial notebook](examples/bayestrade_tutorial.ipynb)
 
-The [research paper](reports/research-paper.pdf) gives the model and findings.
-The [study protocol](reports/protocol.md) defines comparisons and metrics.
-The [result manifest](reports/results/manifest.json) records source and seed
-provenance, and the [notebook](examples/bayestrade_tutorial.ipynb) walks through
-the library and an auditable execution.
+BayesTrade is a Python library for tabular MDPs, POMDPs, and BAMDPs, with a
+seeded market execution simulator for testing Bayesian policies against
+execution benchmarks. The study uses synthetic data and requires no API keys.
+
+## Research findings
+
+Each comparison uses 600 paired episodes in its scenario. Differences are
+model minus comparator in basis points (bps) of implementation shortfall.
+Negative values favor the model. The intervals are paired 95% bootstrap intervals.
+
+| Scenario | Comparison | Mean difference | 95% interval |
+|---|---|---:|---:|
+| Nominal regime switching | POMDP vs. TWAP execution benchmark | −5.28 bps | [−5.52, −5.04] |
+| Nominal regime switching | POMDP vs. the same planner using the current quote only | +0.04 bps | [−0.02, +0.09] |
+| Unknown fill rates with observed regimes | BAMDP vs. the same planner with frozen fill priors | −0.09 bps | [−0.17, −0.01] |
+
+The TWAP comparison captures the effect of changing the overall execution
+policy. The same-planner comparison found little incremental cost benefit
+from regime memory, and fill-rate learning produced a small gain. On the 94
+tapes with a triggered liquidity shock, POMDP mean cost was 3.62 bps versus
+5.32 bps for TWAP, while its 95th-percentile cost was 23.99 bps versus 14.36 bps.
+
+[Paired results](reports/results/paired.csv) · [Stratified results](reports/results/strata.csv) · [Seeds and provenance](reports/results/manifest.json)
 
 ## Reproduce
 
@@ -93,6 +108,24 @@ BAMDP hyperstate planning grow rapidly with horizon. The execution POMDP uses
 a two-state belief grid to manage that cost. The study keeps hidden-state
 filtering and observed-state parameter learning separate.
 
-To publish, create an empty GitHub repository under your account, then commit
-this directory and push it to the repository URL. The supplied project also
-runs locally without a GitHub account.
+## Research roadmap
+
+1. **Risk-sensitive execution.** Add a policy that optimizes a mean–CVaR
+   objective for terminal implementation shortfall. Benchmark the cost–tail
+   trade-off against the current POMDP and TWAP on paired tapes, including a
+   held-out liquidity-shock stratum.
+2. **Historical order-book calibration.** Estimate spreads, depth, volatility,
+   and order-arrival patterns from timestamped order-book data. Split calibration
+   and validation by session and quantify sensitivity to assumed passive fills
+   and market impact, which cannot be identified for hypothetical orders from
+   historical replay alone.
+3. **Joint regime and parameter uncertainty.** Maintain a joint posterior over
+   latent liquidity and uncertain fill rates. Verify approximate inference against
+   exact enumeration on a small model before testing execution outcomes.
+
+An IPOMDP remains a separate extension. Covering the full CaCTüS Project 8
+scope would require confirming the project's intended IPOMDP formalism.
+
+## License
+
+Released under the [MIT License](LICENSE).
